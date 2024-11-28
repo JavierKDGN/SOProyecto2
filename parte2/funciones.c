@@ -80,8 +80,8 @@ int OPTIMO (int* marcos, int num_marcos, int* referencias, int num_referencias) 
         if (!encontrado) {
             fallos_pagina++;
 
-            // Si hay espacio, encontrar el primer marco vacio
             bool marco_asignado = false;
+            // Si hay espacio, encontrar el primer marco vacio
             for (int j = 0; j < num_marcos; j++) {
                 if (marcos[j] == -1) {
                     marcos[j] = referencias[i];
@@ -95,7 +95,7 @@ int OPTIMO (int* marcos, int num_marcos, int* referencias, int num_referencias) 
                 int indice_remplazar = -1;
                 int max_distancia = -1;
 
-                for (int j = 0; j < num_marcos; j++) {
+                for (int j = num_marcos - 1; j >= 0; j--) {
                     int distancia = -1;
 
                     // Buscar cuándo se usara de nuevo cada pagina en el futuro
@@ -134,7 +134,7 @@ int OPTIMO (int* marcos, int num_marcos, int* referencias, int num_referencias) 
 // Algoritmo FIFO
 int FIFO(int* marcos, int num_marcos, int* referencias, int num_referencias) {
     int fallos_pagina = 0;         // Contador de fallos de página
-    int siguiente_marco = 0;      // Indica el próximo marco a reemplazar
+    //int siguiente_marco = 0;      // Indica el próximo marco a reemplazar
 
     // Inicializar los marcos como vacíos (-1)
     for (int i = 0; i < num_marcos; i++) {
@@ -156,8 +156,13 @@ int FIFO(int* marcos, int num_marcos, int* referencias, int num_referencias) {
         // Si no está, hay un fallo de página
         if (!encontrado) {
             fallos_pagina++;  // Incrementar el contador de fallos
-            marcos[siguiente_marco] = referencias[i];  // Reemplazar en el marco FIFO
-            siguiente_marco = (siguiente_marco + 1) % num_marcos;  // Avanzar al siguiente marco
+            for (int j = 0; j < num_marcos - 1; j++)
+            {
+                marcos[j] = marcos[j + 1];
+            }
+            
+            marcos[num_marcos - 1] = referencias[i];  // Reemplazar en el marco FIFO
+            //siguiente_marco = (siguiente_marco + 1) % num_marcos;  // Avanzar al siguiente marco
         }
 
         // Imprimir el estado actual de los marcos
@@ -171,7 +176,7 @@ int FIFO(int* marcos, int num_marcos, int* referencias, int num_referencias) {
 
 int RELOJ_SIMPLE (int* marcos, int num_marcos, int* referencias, int num_referencias) {
     int fallos_pagina = 0;
-    int bits_referencia[num_marcos]; // Bits de referencia
+    int* bits_referencia = (int*)malloc(num_marcos * sizeof(int)); // Bits de referencia
     int puntero_reloj = 0;           // Puntero al marco actual
 
     // Inicializar los marcos y bits de referencia
@@ -214,68 +219,54 @@ int RELOJ_SIMPLE (int* marcos, int num_marcos, int* referencias, int num_referen
         imprimir_marcos(marcos, num_marcos);
     }
 
+    free(bits_referencia);
     return fallos_pagina;
 }
 
 
 int LRU(int* marcos, int num_marcos, int* referencias, int num_referencias) {
     int fallos_pagina = 0;
-    int tiempos[num_marcos]; // Para rastrear el tiempo relativo de uso
+    //int tiempos[num_marcos]; // Para rastrear el tiempo relativo de uso
 
     // Inicializar los marcos y los tiempos
     for (int i = 0; i < num_marcos; i++) {
         marcos[i] = -1; // Marcos vacíos inicialmente
-        tiempos[i] = -1; // -1 indica que no se ha usado aún
+        //tiempos[i] = -1; // -1 indica que no se ha usado aún
     }
 
     for (int i = 0; i < num_referencias; i++) {
         bool encontrado = false;
 
         // Incrementar los tiempos para todos los marcos ocupados
-        for (int j = 0; j < num_marcos; j++) {
-            if (marcos[j] != -1) {
-                tiempos[j]++;
-            }
-        }
+        //for (int j = 0; j < num_marcos; j++) {
+        //    if (marcos[j] != -1) {
+        //        tiempos[j]++;
+        //    }
+        //}
 
         // Verificar si la página ya está en memoria
         for (int j = 0; j < num_marcos; j++) {
             if (marcos[j] == referencias[i]) {
                 encontrado = true;
-                tiempos[j] = 0; // Reiniciar el tiempo relativo de esta página
+                for (int k = 0; k < num_marcos - 1; k++)
+                {
+                    marcos[k] = marcos[k + 1];
+                }
+                marcos[num_marcos - 1] = referencias[i];
+                //tiempos[j] = 0; // Reiniciar el tiempo relativo de esta página
                 break;
             }
         }
 
         // Si no está, es un fallo de página
         if (!encontrado) {
-            fallos_pagina++;
-
-            // Buscar el marco a reemplazar
-            int indice_remplazar = -1;
-
-            // Si hay un marco vacío (-1), usarlo
-            for (int j = 0; j < num_marcos; j++) {
-                if (marcos[j] == -1) {
-                    indice_remplazar = j;
-                    break;
-                }
+            fallos_pagina++;  // Incrementar el contador de fallos
+            for (int j = 0; j < num_marcos - 1; j++)
+            {
+                marcos[j] = marcos[j + 1];
             }
-
-            // Si no hay espacio, buscar el marco menos recientemente usado
-            if (indice_remplazar == -1) {
-                int max_tiempo = -1;
-                for (int j = 0; j < num_marcos; j++) {
-                    if (tiempos[j] > max_tiempo) {
-                        max_tiempo = tiempos[j];
-                        indice_remplazar = j;
-                    }
-                }
-            }
-
-            // Reemplazar la página en el marco seleccionado
-            marcos[indice_remplazar] = referencias[i];
-            tiempos[indice_remplazar] = 0; // Reiniciar tiempo relativo para esta página
+            
+            marcos[num_marcos - 1] = referencias[i];  // Reemplazar en el marco FIFO
         }
 
         // Imprimir el estado actual de los marcos
