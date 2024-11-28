@@ -10,7 +10,7 @@ void producer(Monitor& monitor, int id, int elems) {
         std::cout << "Productor " << id << " agrego " << id * 100 + i << "\n";
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    std::cout << "Productor " << id << " termino y el jhos callampin bombin" << "\n";
+    std::cout << "Productor " << id << " termino" << "\n";
     monitor.removeProductor();
 }
 
@@ -24,7 +24,7 @@ void consumer(Monitor& monitor, int id, int wait_time) {
         std::cout << "Consumidor " << id << " saco " << elem << "\n";
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
-    std::cout << "Consumidor " << id << " termino y el jhos callampin bombin" << "\n";
+    std::cout << "Consumidor " << id << " termino" << "\n";
 }
 
 int main(int argc, char* argv[]) {
