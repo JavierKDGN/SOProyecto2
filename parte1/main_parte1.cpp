@@ -16,13 +16,22 @@ void producer(Monitor& monitor, int id, int elems) {
 
 void consumer(Monitor& monitor, int id, int wait_time) {
     int elem;
+    bool timeout = false;
     auto end_time = std::chrono::steady_clock::now() + std::chrono::seconds(wait_time);
-    while (std::chrono::steady_clock::now() < end_time) {
-        if (!monitor.dequeue(elem)) {
-            break;
+    while (true) {
+        if (!monitor.dequeue(elem)) { //si no quedan prods activos ni elementos
+            if (!timeout) {
+                timeout = true;
+                end_time = std::chrono::steady_clock::now() + std::chrono::seconds(wait_time);
+            }
+            if (std::chrono::steady_clock::now() >= end_time) {
+                break;
+            }
+        } else {
+            std::cout << "Consumidor " << id << " saco " << elem << "\n";
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
-        std::cout << "Consumidor " << id << " saco " << elem << "\n";
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
     }
     std::cout << "Consumidor " << id << " termino" << "\n";
 }
