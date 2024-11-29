@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "funciones.h"  
+#include "tabla_hash.h"
 
 int main(int argc, char* argv[]) {
     if (argc != 7) {
@@ -45,25 +46,36 @@ int main(int argc, char* argv[]) {
     fclose(archivo);
 
     // Simular el algoritmo
+    TablaPaginas* tabla_paginas = tablaInit(SIZE_HASH);
     int fallos_pagina = 0;
-    int* marcos = (int*)malloc(num_marcos * sizeof(int));
 
     if (strcmp(algoritmo, "FIFO") == 0) {
-        fallos_pagina = FIFO(marcos, num_marcos, referencias, num_referencias);
+        for (int i = 0; i < num_referencias; i++) {
+            reemplazo_fifo(tabla_paginas, referencias[i], &fallos_pagina, num_marcos);
+        }
     } else if (strcmp(algoritmo, "LRU") == 0) {
-        fallos_pagina = LRU(marcos, num_marcos, referencias, num_referencias);
+        for (int i = 0; i < num_referencias; i++) {
+            reemplazo_lru(tabla_paginas, referencias[i], &fallos_pagina, num_marcos);
+        }
     } else if (strcmp(algoritmo, "OPTIMO") == 0) {
-        fallos_pagina = OPTIMO(marcos, num_marcos, referencias, num_referencias);
+        for (int i = 0; i < num_referencias; i++) {
+            reemplazo_optimo(tabla_paginas, referencias, num_referencias, i, &fallos_pagina, num_marcos);
+        }
     } else if (strcmp(algoritmo, "RELOJ_SIMPLE") == 0) {
-        fallos_pagina = RELOJ_SIMPLE(marcos, num_marcos, referencias, num_referencias);
+        int referencia[num_marcos];
+        int puntero = 0;
+        memset(referencia, 0, sizeof(referencia)); // Inicializar bits de referencia
+        for (int i = 0; i < num_referencias; i++) {
+            reemplazo_reloj_simple(tabla_paginas, referencias[i], referencia, &puntero, &fallos_pagina, num_marcos);
+        }
     } else {
         printf("Algoritmo no implementado: %s\n", algoritmo);
-        free(marcos);
+        liberar_tabla_paginas(tabla_paginas);
         return 1;
     }
 
     printf("Total de fallos de página: %d\n", fallos_pagina);
 
-    free(marcos); // Liberar memoria
+    tablaFree(tabla_paginas);
     return 0;
 }

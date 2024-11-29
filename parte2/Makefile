@@ -1,7 +1,7 @@
 # Definimos las variables
 CXX = gcc                # Usamos gcc como compilador
 CXXFLAGS = -Wall =Wextra -std=c11 -g  # Flags para el compilador (C11)
-SRC = main_parte2.c funciones.c            # El archivo principal y funciones
+SRC = main_parte2.c funciones.c tabla_hash.h          # El archivo principal y funciones
 OBJ = $(SRC:.c=.o) 
 EXEC = main_parte2               # Nombre del ejecutable
 

@@ -1,61 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #include "funciones.h"
-
-// Inicializar la tabla de páginas
-void inicializar_tabla_paginas(TablaPaginas* tabla_paginas) {
-    for (int i = 0; i < TAMANO_HASH; i++) {
-        tabla_paginas->tabla[i] = NULL;
-    }
-}
-
-// funcion hash
-int funcion_hash(int numero_pagina) {
-    return numero_pagina % TAMANO_HASH;
-}
-
-// Buscar pagina en la tabla
-bool buscar_pagina(TablaPaginas* tabla_paginas, int numero_pagina) {
-    int indice = funcion_hash(numero_pagina);
-    NodoPagina* actual = tabla_paginas->tabla[indice];
-    while (actual != NULL) {
-        if (actual->numero_pagina == numero_pagina) {
-            return true;
-        }
-        actual = actual->siguiente;
-    }
-    return false;
-}
-
-// Insertar pagina en la tabla
-void insertar_pagina(TablaPaginas* tabla_paginas, int numero_pagina) {
-    int indice = funcion_hash(numero_pagina);
-    NodoPagina* nuevo_nodo = (NodoPagina*)malloc(sizeof(NodoPagina));
-    nuevo_nodo->numero_pagina = numero_pagina;
-    nuevo_nodo->siguiente = tabla_paginas->tabla[indice];
-    tabla_paginas->tabla[indice] = nuevo_nodo;
-}
-
-// Eliminar pagina de la tabla
-void eliminar_pagina(TablaPaginas* tabla_paginas, int numero_pagina) {
-    int indice = funcion_hash(numero_pagina);
-    NodoPagina* actual = tabla_paginas->tabla[indice];
-    NodoPagina* previo = NULL;
-    while (actual != NULL && actual->numero_pagina != numero_pagina) {
-        previo = actual;
-        actual = actual->siguiente;
-    }
-    if (actual != NULL) {
-        if (previo == NULL) {
-            tabla_paginas->tabla[indice] = actual->siguiente;
-        } else {
-            previo->siguiente = actual->siguiente;
-        }
-        free(actual);
-    }
-}
-
+#include <limits.h>
+#include <string.h>
+#include <stdbool.h>
 
 int OPTIMO (int* marcos, int num_marcos, int* referencias, int num_referencias) {
     int fallos_pagina = 0;
@@ -287,13 +233,13 @@ int LRU(int* marcos, int num_marcos, int* referencias, int num_referencias) {
 
 
 // Imprimir los marcos
-void imprimir_marcos(int* marcos, int num_marcos) {
-    printf("Marcos: ");
-    for (int i = 0; i < num_marcos; i++) {
-        if (marcos[i] == -1) {
-            printf("[ ] ");
-        } else {
-            printf("[%d] ", marcos[i]);
+void imprimir_tabla(TablaPaginas* tabla) {
+    printf("Tabla: ");
+    for (int i = 0; i < SIZE_HASH; i++) {
+        NodoPagina* nodo = tabla->tabla[i];
+        while (nodo) {
+            printf("[%d] ", nodo->num_pagina);
+            nodo = nodo->next;
         }
     }
     printf("\n");
