@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (num_marcos <= 0 || algoritmo == NULL || nombre_archivo == NULL) {
-        printf("Error en los parámetros de entrada.\n");
+        printf("Error en los parametros de entrada.\n");
         return 1;
     }
 
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    printf("Total de fallos de página: %d\n", fallos_pagina);
+    printf("Total de fallos de pagina: %d\n", fallos_pagina);
 
     free(marcos); // Liberar memoria
     return 0;
